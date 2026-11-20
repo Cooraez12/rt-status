@@ -4,7 +4,7 @@ Calls RT's own public endpoints only, records up / slow / down for each
 service, and keeps 90 days of daily uptime. Only the result is stored:
 response bodies, versions and internal names are never written out.
 Also copies staff incident notes (GitHub issues labelled "incident") into
-site/data/incidents.json.
+docs/data/incidents.json.
 """
 import datetime as dt
 import json
@@ -15,7 +15,7 @@ import urllib.error
 import urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA = os.path.join(ROOT, "site", "data")
+DATA = os.path.join(ROOT, "docs", "data")
 UA = "RT-Status-Check/1.0 (+https://status.rt.app)"
 TIMEOUT = 20
 SLOW_SECONDS = 8

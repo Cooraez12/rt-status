@@ -12,8 +12,6 @@ on:
 permissions:
   contents: write
   issues: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: status
@@ -23,9 +21,6 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -37,17 +32,12 @@ jobs:
           # Incident edits only refresh the notes; the 5-minute schedule records uptime.
           SKIP_CHECKS: ${{ (github.event_name == 'issues' || github.event_name == 'issue_comment') && '1' || '0' }}
         run: python scripts/check.py
+      # Pages publishes docs/ from main on every push, so saving the results is the deploy.
       - name: Save results
         run: |
           git config user.name "rt-status-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add site/data
+          git add docs/data
           if git diff --cached --quiet; then exit 0; fi
           git commit -m "Status update $(date -u +%Y-%m-%dT%H:%MZ)" -q
           for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-      - id: deploy
-        uses: actions/deploy-pages@v4
